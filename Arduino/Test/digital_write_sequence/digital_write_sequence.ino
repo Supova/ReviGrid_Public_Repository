@@ -13,11 +13,12 @@ void setup() {
   pinMode(10,OUTPUT);
   pinMode(11,OUTPUT);
   pinMode(12,OUTPUT);
+  pinMode(13,OUTPUT);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  for (int i=2;i<13;i++){
+  for (int i=2;i<14;i++){
     digitalWrite(i,HIGH);
     Serial.print(i);Serial.println(" is on");
     delay(2000);

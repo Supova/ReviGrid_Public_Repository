@@ -80,6 +80,7 @@ void setup() {
   Serial.begin(115200); // Starting serial communication
   SPI.begin(); // Initialize SPI
   pinMode(csPin, OUTPUT);
+  setAnaChan();
   setResHigh();
   DDRD = DDRD | B11110000;              // this sets pins 0-3 as inputs and 4 to 7 as outputs 
   pinMode(hallPin,INPUT_PULLUP);              // this is for the hall effect home sensor
@@ -111,6 +112,24 @@ void setup() {
 void loop() { 
   checkAction(1); // check all cmds
   checkTrack();
+}
+
+void setAnaChan(){
+  pinMode(A5,INPUT_PULLUP);
+  digitalWrite(csPin, HIGH); // Ensure MCP41010 is not selected by default
+  digitalWrite(csPin, LOW); // Select MCP41010
+  SPI.transfer(0x11); // Command byte to write to potentiometer 0
+  SPI.transfer(255); // sets 4151 to 0 ohms 
+  bool anaFlag = digitalRead(A5);
+  SPI.transfer(0);// sets4151 to 100k ohms 
+  solarPin=A5;
+  if(anaFlag){
+    solarPin=A3;
+    //Serial.println("reading on A3");
+  }
+  pinMode(A5,INPUT);
+  int anaVal = analogRead(A5); //revert A5 to an analog channel and disconnect the pullup resistor
+  //Serial.println(anaVal);
 }
 
 void setResHigh(){
@@ -367,6 +386,9 @@ void off(){
   atFlag=0; // turn auto tracking routine off
   goHome();
   go2Q();
+  for(int i=0;i<15;i++){
+    stepCW();
+  }
   stopMot();
   onFlag=0; // turn solar panel to storage position
   busyFlag=0;
@@ -400,7 +422,7 @@ float readSolar(){
 //   }
   double sum = 0;
   for (int i = 0; i < nReads; i++) {
-    sum = sum + analogRead(5);
+    sum = sum + analogRead(solarPin);
     delay(1);
   }
   double avg = sum/nReads;
@@ -709,9 +731,9 @@ void getDelay(int delayms){
 
 // make a full rotation (320 degree) and find the max light position
 void runScan(){
+  goHome();
   busyFlag=1;
   atFlag = 0; // turn off track mode
-  goHome();
   // fMaxAna0=0; // -> maxSolarVal
   float maxSolarVal = 0;
   // fAna0=0; // -> currSolarVal

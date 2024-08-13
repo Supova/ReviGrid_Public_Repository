@@ -1,0 +1,21 @@
+clear
+main
+pause(3);
+
+initKW = solar.call("getKW");
+maxKW = initKW;
+maxIdx = 0;
+KWs = double(17);
+
+sun.call("setMax", 17);
+sun.call("goHome");
+
+for i = 1:17
+    KWs(i) = str2double(solar.call("getVal"));
+    if KWs(i) > maxKW
+        maxKW = KWs(i);
+        max
+    pause(0.5);
+    sun.call("goIdx", i - 1);
+    pause(2);
+end

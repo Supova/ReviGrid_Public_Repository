@@ -47,6 +47,7 @@ bool busyFlag=0;
 float vLev=0; // voltage level scaled to 5 volts dc
 float genI=0; // gen current in milliamp
 float kwVal=0; // gen power calculated from vLev(voltage) and genI(current)
+float mwV=0;
 int kwAlloc = 0;
 
 float vD=0; // voltage drop scaled to 5 volts dc
@@ -58,6 +59,7 @@ float vScale=30; // voltage scale factor
 float setV=120;
 int kwV=100; // load allocated to generator
 const float carbDiv=100.0; // divisor for calculating carbon
+int uX=1;
 
 float Kp=1.5;
 float Ki=10;
@@ -189,6 +191,7 @@ void checkSurfaceMount(){
   if(!SM){
     genVoltPin = A2; // This analog input channel reads the generator voltage
     genVoltLowPin = A3; // reads the lower voltage from the other side of 47 ohm resistor
+    uX=5; 
   }
   pinMode(A0,INPUT);
 }
@@ -385,7 +388,7 @@ void loadCubic(){
   maxPow = 0;
   for(int u = 0; u < 50; u++) { 
     xValues[u] = EEPROM.read(u + 100);
-    yValues[u] = u;
+    yValues[u] = u*uX;
     if(xValues[u]>maxPow){maxPow=xValues[u];}
     // Serial.println(maxPow);
   }
@@ -403,16 +406,16 @@ void loadLoop(){
   }
   // calculate milliwatt values with 50 different PWM values
   for(int u = 0; u < 50; u++) {
-    analogWrite(genPWM_PIN,u); // modify 
+    analogWrite(genPWM_PIN,u*uX); // modify 
     checkAction();
     checkGenStat();
-    checkMatch();
-    delay(100);
+    for(int cM=0;cM<5;cM++){
+      checkMatch();
+      delay(100);
+    }
     readGenVolt(); // calculate current
-    // power = voltage * current
-    byte eVal=vLev*genI; // milliwatt
-    EEPROM.write(u+100,eVal); // write milliwatt values to eeprom
-    // Serial.print(u); Serial.print(" "); Serial.println(eVal);
+    EEPROM.write(u+100,mwV); // write milliwatt values to eeprom
+    //Serial.print(u*uX); Serial.print(" "); Serial.println(mwV);
   }
   EEPROM.write(99, 0); // set eeprom[99]
   matchFlag = 0; // disable match mode
@@ -688,7 +691,7 @@ float readGenVolt(){
   genI=vD/47.0*1000;              // this calculates the current flowing through the 47 ohm resistor
   // power = voltage * current
   // get power in milliwatt
-  float mwV=vLev*genI;                    // this calculates the milliwatt value
+  mwV=vLev*genI;                    // this calculates the milliwatt value
   // resistance = voltage / current
   // load resistance includes the 47 ohm resistor
   loadRes=(vLev/genI*1000.0); // load resistance
@@ -720,22 +723,22 @@ void mixColor(float readVal){
   int pctVal=max(min(readVal/capKW*100,100),0);
   if(pctVal >= 75){
     b=maxLum;
-    g=maxLum*(pctVal-75)/25;
+    g=maxLum*(pctVal-75)/25.0;
     r=maxLum;
   }
   else if(pctVal < 75 && pctVal >= 50){
-    b=maxLum*(pctVal-50)/25;
+    b=maxLum*(pctVal-50)/25.0;
     g=0;
     r=maxLum;
   }
   else if(pctVal < 50 && pctVal >= 25){
     b=0;
-    g=maxLum*(50-pctVal)/25;
-    r=maxLum*(pctVal-25)/25;
+    g=maxLum*(50-pctVal)/25.0;
+    r=maxLum*(pctVal-25)/25.0;
   }
   else if(pctVal < 25 && pctVal >= 0){
-    b=maxLum*(25-pctVal)/25;
-    g=maxLum*pctVal/25;
+    b=maxLum*(25-pctVal)/25.0;
+    g=maxLum*pctVal/25.0;
     r=0;   
   }
 } 

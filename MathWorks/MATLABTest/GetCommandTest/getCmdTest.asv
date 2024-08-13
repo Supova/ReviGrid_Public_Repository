@@ -1,0 +1,41 @@
+clear;
+% get cmd menu from generator obj
+gen = generatorObj;
+cmdMenu = gen.cmdMenu;
+
+% register serial port for generator module
+SP = serialport("COM4", 115200);
+
+% num of runs
+count = 1;
+% string cmd
+str = "getCommands" + newline;
+
+for i = 1:count
+    SP.write(str, "char");
+    cmdName = readSP(SP);
+    while strcmp('eoc')
+end
+
+
+% read and format a serial input
+function str = readSP(SP)
+    % check serial port readline
+    try
+        lastwarn('');
+        str = readline(SP); % read a message from serial buffer
+        if(~isempty(lastwarn))
+            % readline() only triggers a warning when timeout
+            % insert an error to trigger "catch"
+            error();
+        end
+    catch 
+        str = "ERROR: Can't read from " + SP.Port;
+        error(str);
+    end
+
+    str = convertStringsToChars(str); % convert to char vector for formatting
+    str = str(1:end - 1); % remove "\n" terminator
+end % end readSP()
+
+

@@ -267,7 +267,7 @@ void checkAction(bool checkAll) {
     return;
   }
   if(serialReceived=="getAll"){getAll();}
-  else if(serialReceived=="*ID?"){Serial.println("windturbine");}
+  else if(serialReceived=="*ID?"||serialReceived=="*IDN?"){Serial.println("windturbine");}
   else if(serialReceived=="trackOff"){atFlag=0;busyFlag=0;}
   else if(serialReceived=="getMax"){getMax();}
   else if(serialReceived=="getVal"){getVal();}

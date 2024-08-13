@@ -1,0 +1,22 @@
+clear;
+
+s = serialport("COM16", 115200);
+pause(1.5);
+
+str = "init" + newline;
+s.write(str, "char"); % send init
+pause(3);
+
+str = "setMot" + newline;
+PWMval = 0;
+
+for i = 1:inf
+    if PWMval == 256
+        PWMval = 0;
+    end
+    disp(PWMval);
+    s.write(str, "char"); % send setMot
+    s.write(string(PWMval)+newline, "char") % send motor PWM
+    pause(0.014);
+    PWMval = PWMval + 1; % increse motor PWM
+end
