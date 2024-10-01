@@ -1,6 +1,6 @@
 * Grid Created
-   -COM22: fan
-   -COM23: solartracker
-   -COM24: houseload
-   -COM29: generator
+   -COM28: generator
+* generator: init
 * Plot started
+* Plot paused
+* generator: trackOff

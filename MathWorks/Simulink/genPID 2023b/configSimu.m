@@ -9,7 +9,7 @@ for i = 1:COM.size(2)
     SP = serialport(COM(i), 115200, "Timeout", 2);
     str = "Registering " + COM(i) + "...";
     disp(str);
-    pause(1.5);
+    pause(3);
     SP.writeline("*ID?")
     try
         lastwarn('');

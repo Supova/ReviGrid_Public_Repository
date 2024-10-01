@@ -70,7 +70,7 @@ function [SP, successFlag] = registerSP(portName)
         disp(str);
         SP = serialport(portName, 115200, "Timeout", 2);
         SP.configureTerminator("LF");
-        pause(1.5) % wait for serial port to set up, min 1.5 sec
+        pause(3) % wait for serial port to set up, min 1.5 sec
     catch 
         str = "ERROR: Can't open " + portName;
         warning(str);
